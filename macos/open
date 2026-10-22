@@ -1,0 +1,11 @@
+#!/bin/sh
+# First on the PATH of Claude's macOS URL handler, where TERM_PROGRAM=ghostty makes Claude launch a link with
+#   open -na Ghostty --args --window-save-state=never --working-directory=DIR -e CLAUDE ARGS...
+# That launch goes to herdr-term; anything else goes to the real open.
+term=$(cd "${0%/*}/.." && pwd)/herdr-term
+if [ "$1 $2 $3 $4" = "-na Ghostty --args --window-save-state=never" ] &&
+  [ "${5%%=*}" = --working-directory ] && [ "$6" = -e ] && cd "${5#*=}"; then
+  shift 6
+  exec "$term" "$@"
+fi
+exec /usr/bin/open "$@"

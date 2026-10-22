@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# $TERMINAL for claude-cli:// links: Claude runs "$TERMINAL -e <claude> <args>" from the link's cwd,
+# so open that as a new herdr workspace instead of a new window; a real terminal if herdr isn't running.
+# macOS has no x-terminal-emulator: the failed exec makes Claude fall back to Terminal.app.
+set -o pipefail
+[ "$1" = -e ] && shift
+herdr=${HERDR_BIN_PATH:-herdr}
+printf -v cmd '%q ' "$@"
+pane=$("$herdr" workspace create --cwd "$PWD" --focus | sed -n 's/.*"pane_id":"\([^"]*\)".*/\1/p') &&
+  [ -n "$pane" ] && "$herdr" pane run "$pane" "$cmd" >/dev/null ||
+  exec x-terminal-emulator -e "$@"

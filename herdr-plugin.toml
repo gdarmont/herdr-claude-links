@@ -1,0 +1,34 @@
+id = "claude-links"
+name = "Claude links"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Open claude-cli:// links in a new herdr workspace instead of a new terminal window"
+platforms = ["linux", "macos"]
+
+[[startup]]
+command = ["sh", "install.sh"]
+
+[[actions]]
+id = "install"
+title = "Route Claude links to herdr"
+description = "Point the claude-cli:// handler at this plugin (also runs at every herdr start)"
+contexts = ["global"]
+command = ["sh", "install.sh"]
+
+[[actions]]
+id = "open"
+title = "Open Claude link"
+# The environment install.sh gives Claude's own handler.
+command = ["sh", "-c", """
+case $(uname) in
+Darwin) export TERM_PROGRAM=ghostty PATH="$HERDR_PLUGIN_ROOT/macos:$PATH" ;;
+*) export TERMINAL="$HERDR_PLUGIN_ROOT/herdr-term" ;;
+esac
+exec claude --handle-uri "$HERDR_PLUGIN_CLICKED_URL"
+"""]
+
+[[link_handlers]]
+id = "claude-cli"
+title = "Open in a herdr workspace"
+pattern = "^claude-cli://open"
+action = "open"
